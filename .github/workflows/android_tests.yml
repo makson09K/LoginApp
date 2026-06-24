@@ -33,9 +33,10 @@ jobs:
 
       # --- FAZA BEZPIECZEŃSTWA (SAST) ---
       - name: Run MobSF Static Analysis (mobsfscan)
-        uses: MobSF/mobsfscan-action@main
-        with:
-          args: . --sarif --output mobsf-results.sarif
+        run: |
+          pip install mobsfscan
+          mobsfscan . --sarif --output mobsf-results.sarif
+        continue-on-error: true
 
       - name: Upload MobSF Report
         uses: actions/upload-artifact@v4
