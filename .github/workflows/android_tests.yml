@@ -35,7 +35,7 @@ jobs:
       - name: Run MobSF Static Analysis (mobsfscan)
         uses: MobSF/mobsfscan-action@main
         with:
-          sarif: true
+          args: . --sarif --output mobsf-results.sarif
 
       - name: Upload MobSF Report
         uses: actions/upload-artifact@v4
