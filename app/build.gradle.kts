@@ -78,16 +78,21 @@ val jacocoTestReport = tasks.register<JacocoReport>("jacocoTestReport") {
         html.required.set(true)
     }
 
-    val fileFilter = listOf(
-        "**/R.class", "**/R$*.class", "**/BuildConfig.*", "**/Manifest*.*",
-        "**/*Test*.*", "android/**/*.*", "**/databinding/**/*.*", "**/hilt_aggregated_deps/**/*.*"
-    )
+    val buildDir = project.layout.buildDirectory.get().asFile
 
-    val debugTree = fileTree("${project.layout.buildDirectory.get()}/intermediates/javac/debug/classes") { exclude(fileFilter) }
-    val kotlinDebugTree = fileTree("${project.layout.buildDirectory.get()}/tmp/kotlin-classes/debug") { exclude(fileFilter) }
-    val mainSrc = "${project.projectDir}/src/main/java"
+    // Жодних вгадувань шляхів. Беремо ТУПО ВСІ класи з папки build, де б вони не ховалися.
+    val classTree = fileTree(buildDir) {
+        include("**/*.class")
+        exclude(
+            "**/R.class", "**/R$*.class", "**/BuildConfig.*", "**/Manifest*.*",
+            "**/*Test*.*", "**/android/**/*.*", "**/androidx/**/*.*", "**/*_Factory*.*"
+        )
+    }
 
-    sourceDirectories.setFrom(files(mainSrc))
-    classDirectories.setFrom(files(debugTree, kotlinDebugTree))
-    executionData.setFrom(fileTree(project.layout.buildDirectory.get()) { include("outputs/unit_test_code_coverage/debugUnitTest/*.exec") })
+    sourceDirectories.setFrom(files(
+        "${project.projectDir}/src/main/java",
+        "${project.projectDir}/src/main/kotlin"
+    ))
+    classDirectories.setFrom(classTree)
+    executionData.setFrom(fileTree(buildDir) { include("**/jacoco/*.exec") })
 }
